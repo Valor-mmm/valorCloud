@@ -1,0 +1,92 @@
+version: "3.8"
+services:
+  app:
+    image: nextcloud:27.1.1-apache
+    restart: always
+    depends_on:
+      - db
+      - redis
+    ports: 
+      - 8081:80
+    volumes:
+      - nc_data_vol:/var/www/html
+    labels:
+      - docker-volume-backup.stop-during-backup=service1
+    environment:
+      - MYSQL_PASSWORD=DEF123
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_HOST_PASSWORD=redispass
+    networks:
+      - main
+
+  cron:
+    image: nextcloud:27.1.1-apache
+    restart: always
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - nc_data_vol:/var/www/html
+    labels:
+      - docker-volume-backup.stop-during-backup=service1
+    environment:
+      - MYSQL_PASSWORD=DEF123
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+      - REDIS_HOST=reids
+      - REDIS_HOST_PASSWORD=redispass
+    networks:
+      - helper_cron
+    entrypoint: /cron.sh
+
+  redis:
+    image: redis:7.2.1-alpine
+    restart: always
+    command: redis-server --requirepass redispass
+    networks:
+      - main
+
+  db:
+    image: mysql:8.1.0
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - db_vol:/var/lib/mysql
+    networks:
+      - main
+    labels:
+      - docker-volume-backup.stop-during-backup=service1
+    environment:
+      - MYSQL_ROOT_PASSWORD=ABC123
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_PASSWORD=DEF123
+      - MYSQL_USER=nextcloud
+
+  volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks:
+      - helper_volume_backup
+    volumes:
+      - nc_data_vol:/backup/nextcloud_data:ro
+      - db_vol:/backup/nextcloud_database:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ~/valorCloud/backups/nextcloud:/archive
+    environment:
+      BACKUP_RETENTION_DAYS: "3"
+      BACKUP_PRUNING_PREFIX: nextcloud_backup
+
+
+volumes:
+  nc_data_vol:
+  db_vol:
+
+networks:
+  main:
+  helper_cron:
+  helper_volume_backup:
+
