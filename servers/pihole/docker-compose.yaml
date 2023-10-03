@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  app:
+    image: pihole/pihole:2023.05.2
+    restart: always
+    ports:
+      - "9053:53/tcp"
+      - "9053:53/udp"
+      - "8083:80/tcp"
+    volumes:
+      - pihole_vol:/etc/pihole
+      - dnsmasq_vol:/etc/dnsmasq.d
+    networks:
+      - main
+    environment:
+      TZ: "Europe/Berlin"
+      WEBPASSWORD: a12345
+
+
+  volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks: 
+      - helper_volume_backup
+    volumes:
+      - pihole_vol:/backup/pihole_data:ro
+      - dnsmasq_vol:/backup/pihole_dnsmasq:ro
+      - ~/valorCloud/backups/pihole:/archive
+    environment:
+      BACKUP_RETENTION_DAYS: "2"
+      BACKUP_PRUNING_PREFIX: pihole_backup
+
+
+networks:
+  main:
+  helper_volume_backup:
+
+volumes:
+  pihole_vol:
+  dnsmasq_vol:
