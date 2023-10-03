@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  app:
+    image: portainer/portainer-ce:2.19.1
+    restart: always
+    ports:
+      - 8082:8000
+      - 9443:9443
+    networks:
+      - main
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - data:/data
+    labels:
+      - docker-volume-backup.stop-during-backup=service1
+
+  volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks: 
+      - helper_volume_backup
+    volumes:
+      - data:/backup/portainer:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/valorCloud/backups/portainer:/archive
+    environment:
+      BACKUP_RETENTION_DAYS: "3"
+      BACKUP_PRUNING_PREFIX: portainer_backup
+
+networks:
+  main:
+  helper_volume_backup:
+
+volumes:
+  data:  
