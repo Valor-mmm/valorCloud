@@ -6,3 +6,5 @@ My Self hosted cloud configuration
 
 - ZSH installed
 - Docker installed
+- Python3
+  - schema package

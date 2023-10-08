@@ -14,7 +14,8 @@ services:
       - main
     environment:
       TZ: "Europe/Berlin"
-      WEBPASSWORD: a12345
+    env_file:
+      - ./secrets/app.env
 
 
   volume_backup:

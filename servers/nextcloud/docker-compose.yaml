@@ -13,12 +13,12 @@ services:
     labels:
       - docker-volume-backup.stop-during-backup=service1
     environment:
-      - MYSQL_PASSWORD=DEF123
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
       - REDIS_HOST=redis
-      - REDIS_HOST_PASSWORD=redispass
+    env_files:
+      - ./secrets/app_cron_db.env
     networks:
       - main
 
@@ -33,12 +33,12 @@ services:
     labels:
       - docker-volume-backup.stop-during-backup=service1
     environment:
-      - MYSQL_PASSWORD=DEF123
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
       - REDIS_HOST=reids
-      - REDIS_HOST_PASSWORD=redispass
+    env_files: 
+      - ./secrets/app_cron_db.env
     networks:
       - helper_cron
     entrypoint: /cron.sh
@@ -46,7 +46,6 @@ services:
   redis:
     image: redis:7.2.1-alpine
     restart: always
-    command: redis-server --requirepass redispass
     networks:
       - main
 
@@ -61,10 +60,11 @@ services:
     labels:
       - docker-volume-backup.stop-during-backup=service1
     environment:
-      - MYSQL_ROOT_PASSWORD=ABC123
       - MYSQL_DATABASE=nextcloud
-      - MYSQL_PASSWORD=DEF123
       - MYSQL_USER=nextcloud
+    env_files:
+      - ./secrets/app_cron_db.env
+      - ./secrets/db.env
 
   volume_backup:
     image: offen/docker-volume-backup:v2
