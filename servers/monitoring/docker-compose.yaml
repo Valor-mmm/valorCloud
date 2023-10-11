@@ -1,0 +1,56 @@
+version: "3.8"
+services:
+  prometheus:
+    image: prom/prometheus:v2.47.1
+    restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_vol:/prometheus
+    ports:
+      - 8084:9090
+    networks:
+      - main
+      - node_exporter_net
+      - cadvisor_net
+
+  grafana:
+    image: grafana/grafana:10.0.8
+    restart: always
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana_vol:/var/lib/grafana
+    ports:
+      - 8085:3000
+    networks:
+      - main
+
+  node_exporter:
+    image: prom/node-exporter:v1.6.1
+    restart: always
+    networks:
+      - node_exporter_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    # cAdvisor has a UI for admins, but I should not need it. If that changes, I can always reenable it
+    # ports:
+    #  - 8086:8080
+    networks:
+      - cadvisor_net
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/snap/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+networks:
+  main:
+  node_exporter_net:
+  cadvisor_net:
+
+volumes:
+  prometheus_vol:
+  grafana_vol:
+
+
