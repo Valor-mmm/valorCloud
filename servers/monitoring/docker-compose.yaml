@@ -23,6 +23,8 @@ services:
       - 8085:3000
     networks:
       - main
+    env_file:
+      - ./secrets/grafana.env
 
   node_exporter:
     image: prom/node-exporter:v1.6.1
