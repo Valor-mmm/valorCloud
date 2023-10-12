@@ -45,11 +45,37 @@ services:
       - /sys:/sys:ro
       - /var/snap/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+  
+  pmometheus_volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks:
+      - prometheus_volume_backup_net
+    volumes:
+      - prometheus_vol:/backup/prometheus_data:ro
+      - ~/valorCloud/backups/monitoring/prometheus:/archive
+    environment:
+      BACKUP_RETENTION_DAYS: "2"
+      BACKUP_PRUNING_PREFIX: prometheus_backup
+
+  grafana_volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks:
+      - grafana_volume_backup_net
+    volumes:
+      - grafana_vol:/backup/grafana_data:ro
+      - ~valorCloud/backups/monitoring/grafana:/archive
+    environment:
+      BACKUP_RETNETION_DAYS: "2"
+      BACKUP_PRUNING_PREFIX: grafana_backup
 
 networks:
   main:
   node_exporter_net:
   cadvisor_net:
+  prometheus_volume_backup_net:
+  grafana_volume_backup_net:
 
 volumes:
   prometheus_vol:
