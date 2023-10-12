@@ -17,7 +17,7 @@ services:
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
       - REDIS_HOST=redis
-    env_files:
+    env_file:
       - ./secrets/app_cron_db.env
     networks:
       - main
@@ -37,7 +37,7 @@ services:
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
       - REDIS_HOST=reids
-    env_files: 
+    env_file: 
       - ./secrets/app_cron_db.env
     networks:
       - helper_cron
@@ -62,7 +62,7 @@ services:
     environment:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
-    env_files:
+    env_file:
       - ./secrets/app_cron_db.env
       - ./secrets/db.env
 
