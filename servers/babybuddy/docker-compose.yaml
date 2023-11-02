@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    image: lscr.io/linuxserver/babybuddy:v2.1.2-ls110
+    restart: always
+    environment:
+      - TZ=Europe/Berlin
+      - CSRF_TRUSTED_ORIGINS=https://bb.valor.codes
+    networks:
+      - main
+    volumes:
+      - bb_data_vol:/config
+    ports:
+      - "8086:8000"
+
+
+  volume_backup:
+    image: offen/docker-volume-backup:v2
+    restart: always
+    networks:
+      - helper_volume_backup
+    volumes:
+      - bb_data_vol:/backup:ro
+      - /home/valor/backups/babybuddy:/archive
+    environment:
+      BACKUP_RETENTION_DAYS: "3"
+      BACKUP_PRUNING_PREFIX: babybuddy_backup
+
+networks:
+  main:
+  helper_volume_backup:
+
+volumes:
+  bb_data_vol:
+
