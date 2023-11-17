@@ -1,3 +1,6 @@
 **/publicSecrets.txt
+**/fixed_secrets.txt
 
-**/secrets/
+**/__pycache__
+
+**/servers/**/secrets/
